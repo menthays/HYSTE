@@ -31,6 +31,9 @@ export default {
   components: {
     DynamicScroller,
     DynamicScrollerItem
+  },
+  methods: {
+
   }
 };
 </script>
