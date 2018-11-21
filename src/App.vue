@@ -109,7 +109,9 @@ export default {
     },
     handleFilter() {
       this.list = this.rawList.filter(item => {
-        return new RegExp(this.filter, 'i').test(item.text) && item.level === this.currentLevel.toLowerCase()
+        let search = new RegExp(this.filter, 'i').test(item.text);
+        let filter = this.currentLevel === 'Default' ? true : item.level === this.currentLevel.toLowerCase();
+        return search && filter
       })
     }
   },
