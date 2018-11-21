@@ -1,25 +1,24 @@
 <template>
   <v-app>
     <v-toolbar app>
+      <v-btn icon>
+        <v-icon>settings</v-icon>
+      </v-btn>
       <v-toolbar-title>
         <span>HYSTE</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-select
         class="auto-width"
-        solo
         v-model="currentLevel"
         @change="handleFilter"
         prepend-icon="filter_list"
-        style="margin-right: 6px;"
         :items="levels"
-        label="Log Level"
       ></v-select>
       <v-text-field
         v-model="filter"
         @keyup.enter="handleFilter"
         class="auto-width"
-        solo
         label="Search"
         append-icon="search"
       ></v-text-field>
@@ -34,7 +33,7 @@
 
     <!-- contextmenu -->
     <v-list v-show="contextMenuActive" class="context-menu" :style="contextMenuStyle">
-      <v-subheader>{{`Selected: "${this.selectedContent}"`}}</v-subheader>
+      <v-subheader>{{`Selected: " ${this.selectedContent} "`}}</v-subheader>
       <v-list-tile
         @click="handleAddComment"
       >
@@ -118,6 +117,7 @@ export default {
     this.$nextTick(() => {
       document.addEventListener("paste", this.handlePaste);
       document.querySelector('#scroller').addEventListener('contextmenu', this.handleSelect)
+      document.addEventListener("click", () => this.contextMenuActive = false)
     });
   }
 };
@@ -141,6 +141,7 @@ export default {
 }
 .auto-width {
   flex: 0 0 210px;
+  margin-right: 6px;
 }
 .context-menu {
   position: fixed;
