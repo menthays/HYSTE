@@ -15,13 +15,6 @@
         prepend-icon="filter_list"
         :items="levels"
       ></v-select>
-      <v-text-field
-        v-model="filter"
-        @keyup.enter="handleFilter"
-        class="auto-width"
-        label="Search"
-        append-icon="search"
-      ></v-text-field>
     </v-toolbar>
 
     <v-content id="scroller"  class="log-container" >
@@ -30,6 +23,20 @@
       </div>
       <Scroller v-else :list="list"></Scroller>  
     </v-content>
+
+    <!-- searcher -->
+    <v-toolbar
+      v-if="initialized"
+      class="searcher"
+    >
+      <v-text-field
+        v-model="filter"
+        @keyup.enter="handleFilter"
+        class="auto-width"
+        label="Search"
+        append-icon="search"
+      ></v-text-field>
+    </v-toolbar>
 
     <!-- contextmenu -->
     <v-list v-show="contextMenuActive" class="context-menu" :style="contextMenuStyle">
@@ -150,5 +157,11 @@ export default {
   left: -999px;
   top: -999px;
   z-index: 999999;
+}
+.searcher {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 250px;
 }
 </style>
