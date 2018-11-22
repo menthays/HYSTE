@@ -119,7 +119,7 @@ export default {
   flex: 0 0 200px;
 }
 
-.level-null {
+.level-none {
   background: #EEEEEE;
 }
 

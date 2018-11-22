@@ -9,6 +9,7 @@
     "deploy": "./deploy.sh devops@58.211.16.78 && ./deploy.sh devops@119.9.106.225"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "vue": "^2.5.17",
     "vue-virtual-scroller": "^1.0.0-beta.2",
     "vuetify": "^1.3.0"
