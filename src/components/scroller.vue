@@ -1,24 +1,40 @@
 <template>
+  <div class="wrapper">
     <DynamicScroller
-    :items="list"
-    :min-item-height="24"
-    class="scroller"
-  >
-    <template slot-scope="{ item, index, active }">
-      <DynamicScrollerItem
-        class="line"
-        :item="item"
-        :active="active"
-        :size-dependencies="[
-          item.text,
-        ]"
-        :data-index="index"
-      >
-        <div :class="'line-no '+ item.level">{{item.id}}</div>
-        <div :class="'line-content ' + item.level">{{ item.text }}</div>
-      </DynamicScrollerItem>
-    </template>
-  </DynamicScroller>
+      @update="handleUpdate"
+      :emitUpdate="true"
+      :items="list"
+      :min-item-height="24"
+      class="scroller"
+    >
+      <div slot="before-container" class="wrapper-float-title">
+        <div class="line">
+          <div class="line-no">Line</div>
+          <div class="line-level">Level</div>
+          <div class="line-others">Others</div>
+          <div class="line-content">Content</div>
+        </div>
+      </div>
+      <template slot-scope="{ item, index, active }">
+
+        <DynamicScrollerItem
+          class="line"
+          :class="'level-'+item.level"
+          :item="item"
+          :active="active"
+          :size-dependencies="[
+            item.text,
+          ]"
+          :data-index="index"
+        >
+          <div class="line-no">{{item.id}}</div>
+          <div class="line-level">{{item.level.toUpperCase()}}</div>
+          <div class="line-others">{{item.others}}</div>
+          <div class="line-content" @click.right="handleClick(item, $event)">{{ item.text }}</div>
+        </DynamicScrollerItem>
+      </template>
+    </DynamicScroller>
+  </div>
 </template>
 
 <script>
@@ -26,19 +42,45 @@ import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
 import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
 export default {
   props: {
-    list: Array
+    list: Array,
+    onSelect: Function
   },
   components: {
     DynamicScroller,
     DynamicScrollerItem
   },
   methods: {
-
+    handleUpdate() {
+      window.getSelection().removeAllRanges()
+    },
+    handleClick({level, text, others}, e) {
+      this.onSelect&&this.onSelect({level, text, others}, e)
+    }
   }
 };
 </script>
 
 <style scoped>
+::selection {
+  color: red;
+  background: yellow;
+}
+
+.wrapper {
+  position: relative;
+  height: 100%;
+  padding-top: 24px;
+}
+
+.wrapper-float-title {
+  position: absolute;
+  width: 100%;
+  height: 24px;
+  left: 0;
+  top: 0;
+  opacity: .6;
+}
+
 .scroller {
   height: 100%;
 }
@@ -51,26 +93,45 @@ export default {
 .line-content {
   padding: 0 8px;
   width: 100%;
+  user-select: none;
   border: inset 1px black;
 }
 
-.warn {
-  background: #ffa726;
-}
-
-.info {
-  background: #64b5f6;
-}
-
-.error {
-  background: #f44336;
-}
-
-.line-no {
-  flex: 0 0 50px;
+.line-level,
+.line-no,
+.line-others {
+  user-select: none;
   display: flex;
   justify-content: center;
   align-items: center;
   border: inset 1px black;
+}
+
+.line-level {
+  flex: 0 0 70px;
+}
+
+.line-no {
+  flex: 0 0 50px;
+}
+
+.line-others {
+  flex: 0 0 200px;
+}
+
+.level-null {
+  background: #EEEEEE;
+}
+
+.level-warn {
+  background: #FFCC80;
+}
+
+.level-info {
+  background: #42A5F5;
+}
+
+.level-error {
+  background: #EF5350;
 }
 </style>

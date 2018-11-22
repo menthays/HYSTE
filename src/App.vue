@@ -21,7 +21,7 @@
       <div v-if="!initialized" class="placeholder">
         Paste your log here (Cmd/Ctrl+V)
       </div>
-      <Scroller v-else :list="list"></Scroller>  
+      <Scroller :onSelect="handleSelect" v-else :list="list"></Scroller>  
     </v-content>
 
     <!-- searcher -->
@@ -39,19 +39,23 @@
     </v-toolbar>
 
     <!-- contextmenu -->
-    <v-list v-show="contextMenuActive" class="context-menu" :style="contextMenuStyle">
-      <v-subheader>{{`Selected: " ${this.selectedContent} "`}}</v-subheader>
-      <v-list-tile
-        @click="handleAddComment"
-      >
-        <v-list-tile-title>Add comment</v-list-tile-title>
-      </v-list-tile>
-      <v-list-tile
-        @click="handleGetComments"
-      >
-        <v-list-tile-title>Get comments</v-list-tile-title>
-      </v-list-tile>
-    </v-list>
+    <v-card v-show="contextMenuActive" class="context-menu" :style="contextMenuStyle">
+      <v-card-title v-html="this.selectedContent">
+
+      </v-card-title>
+      <v-list >
+        <v-list-tile
+          @click="handleAddComment"
+        >
+          <v-list-tile-title>Add comment</v-list-tile-title>
+        </v-list-tile>
+        <v-list-tile
+          @click="handleGetComments"
+        >
+          <v-list-tile-title>Get comments</v-list-tile-title>
+        </v-list-tile>
+      </v-list>
+    </v-card>
   </v-app>
 </template>
 
@@ -80,29 +84,38 @@ export default {
   },
   methods: {
     handlePaste(e) {
-      // console.log(e.clipboardData.getData('text'))
-      this.initialized = true;
       let data = e.clipboardData.getData("text").split("\n").filter(line => line !== '');
       this.rawList = data.map((line, index) => {
-        let levelReg = /^(INFO|ERROR|WARN)/.exec(line);
-        return {
-          id: index,
-          level: levelReg ? levelReg[0].toLowerCase() : "null",
-          text: line
-        };
+        return this.nativeParser(line, index)
       });
       this.list = this.rawList
+      this.initialized = true;
     },
-    handleSelect(e) {
-      e.preventDefault()
+    nativeParser(string, index) {
+      const reg = /(INFO|WARN|ERROR)\s*(\([\d\s:|]+\))\s*(\d+;?)\s*(.*)/;
+      let result = reg.exec(string);
+      if (!result) {
+        return {
+          level: 'null',
+          id: index,
+          text: string,
+          others: ''
+        }
+      }
+      return {
+        id: index,
+        level: result[1].toLowerCase(),
+        others: result[2]+' '+result[3],
+        text: result[4]
+      }
+    },
+    handleSelect({level, text, others}, e) {
       if(!this.initialized) {
         return;
       }
-      this.selectedContent = window.getSelection().toString();
-      if (!this.selectedContent) {
-        return;
-      }
       let {clientX, clientY} = e;
+
+      this.selectedContent = `Level: ${level} </br> Content: ${text} </br> Others: ${others}`;
       this.contextMenuActive = true
       this.contextMenuStyle = `left: ${clientX}px; top: ${clientY}px;`
     },
@@ -125,7 +138,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       document.addEventListener("paste", this.handlePaste);
-      document.querySelector('#scroller').addEventListener('contextmenu', this.handleSelect)
+      document.querySelector('#scroller').addEventListener('contextmenu', (e) => {e.preventDefault()})
       document.addEventListener("click", () => this.contextMenuActive = false)
     });
   }
