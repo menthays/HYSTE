@@ -132,6 +132,6 @@ export default {
 }
 
 .level-error {
-  background: #E57373;
+  background: #FF7043;
 }
 </style>

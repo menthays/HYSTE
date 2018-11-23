@@ -13,6 +13,7 @@
             :value="content"
           ></v-textarea>
           <v-textarea
+            @paste.stop=""
             box
             label="Comment"
             v-model="comment"

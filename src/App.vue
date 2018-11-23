@@ -132,15 +132,22 @@ export default {
   },
   methods: {
     handlePaste(e) {
-      let data = e.clipboardData
-        .getData("text")
-        .split("\n")
-        .filter(line => line !== "");
-      this.rawList = data.map((line, index) => {
-        return this.nativeParser(line, index);
-      });
-      this.list = this.rawList;
-      this.initialized = true;
+      if (this.initialized) {
+        this.rawList = []
+        this.list = []
+      }
+      this.$nextTick(() => {
+        let data = e.clipboardData
+          .getData("text")
+          .split("\n")
+          .filter(line => line !== "");
+        this.rawList = data.map((line, index) => {
+          return this.nativeParser(line, index);
+        });
+        this.list = this.rawList;
+        this.initialized = true;
+      })
+
     },
     nativeParser(string, index) {
       const reg = /(INFO|WARN|ERROR)\s*(\([\d\s:|]+\))\s*(\d+;?)\s*(.*)/;
@@ -304,19 +311,17 @@ export default {
         window.localStorage.setItem('myVoteLock', JSON.stringify(this.myVoteLock))
       });
     },
-    // listenToPaste() {
-    //   let scroller = document.querySelector("#scroller");
-    //   scroller.addEventListener("paste", this.handlePaste);
-    // },
-    // stopListenToPaste() {
-    //   let scroller = document.querySelector("#scroller");
-    //   scroller.removeAllListeners('paste')
-    // }
+    listenToPaste() {
+      document.addEventListener("paste", this.handlePaste);
+    },
+    stopListenToPaste() {
+      document.removeAllListeners('paste')
+    }
   },
   mounted() {
     this.$nextTick(() => {
       let scroller = document.querySelector("#scroller");
-      scroller.addEventListener("paste", this.handlePaste);
+      this.listenToPaste()
       scroller.addEventListener("contextmenu", e => {
         e.preventDefault();
       });
