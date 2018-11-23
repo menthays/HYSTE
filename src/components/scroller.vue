@@ -124,14 +124,14 @@ export default {
 }
 
 .level-warn {
-  background: #FFCC80;
+  background: #FFE0B2;
 }
 
 .level-info {
-  background: #42A5F5;
+  background: #BBDEFB;
 }
 
 .level-error {
-  background: #EF5350;
+  background: #E57373;
 }
 </style>

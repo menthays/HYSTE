@@ -39,72 +39,41 @@
     </v-toolbar>
 
     <!-- contextmenu -->
-    <v-card v-show="contextMenuActive" class="context-menu" :style="contextMenuStyle">
-      <v-card-text class="description">
-        <label class="font-weight-bold">Level </label>
-        <div>{{descriptionLevel}}</div>
-        <label class="font-weight-bold">Content </label>
-        <div>{{descriptionContent}}</div>
-        <label class="font-weight-bold">Others </label>
-        <div>{{descriptionOthers}}</div>
-
-      </v-card-text>
-      <v-card-actions>
-        <v-btn @click="handleAddComment" flat color="orange">Add comment</v-btn>
-        <v-btn @click="handleGetComments" flat color="orange">Get comments</v-btn>
-      </v-card-actions>
-    </v-card>
-
-    <!-- dialog for add comment -->
-    <v-dialog v-model="addingComments" max-width="500px">
-      <v-card>
-        <v-card-text>
-          <div class="description">
-            <label class="font-weight-bold">Level </label>
-            <div>{{descriptionLevel}}</div>
-            <label class="font-weight-bold">Content </label>
-            <div>{{descriptionContent}}</div>
-            <label class="font-weight-bold">Others </label>
-            <div>{{descriptionOthers}}</div>
-          </div>
-          <v-divider style="margin: 10px 0"></v-divider>
-          <v-textarea
-            outline
-            label="New comment"
-            v-model="newComment"
-          ></v-textarea>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" flat @click="handleSumbitForAdd">Submit</v-btn>
-          <v-btn color="primary" flat @click="addingComments=false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <AddCommentCard 
+      v-if="contextMenuActive"
+      class="context-menu" 
+      :style="contextMenuStyle"
+      :level="selectedContent.level"
+      :content="selectedContent.content"
+      :onAddComment="handleAddComment"
+      :onGetComments="handleGetComments"
+      />
 
     <!-- dialog for show comments -->
     <v-dialog v-model="showingComments" max-width="500px">
       <v-card>
-        <v-card-text>
-          <div class="description">
-            <label class="font-weight-bold">Level </label>
-            <div>{{descriptionLevel}}</div>
-            <label class="font-weight-bold">Content </label>
-            <div>{{descriptionContent}}</div>
-            <label class="font-weight-bold">Others </label>
-            <div>{{descriptionOthers}}</div>
-          </div>
-          <v-divider style="margin: 10px 0"></v-divider>
-          <v-list>
-            <v-list-tile :key="index" v-for="(comment, index) in responseComments">
-              <v-list-tile-content>
-                {{comment.comment}}
-              </v-list-tile-content>
-            </v-list-tile>
-          </v-list>
-        </v-card-text>
-        <v-card-action>
-          <v-btn color="primary" flat @click="showingComments=false">Close</v-btn>
-        </v-card-action>
+        <v-layout>
+          <v-flex md12 
+            style="padding: 40px 60px; background-color: #EEE"
+          >
+            <DisplayCommentCard
+              style="margin-bottom: 24px;"
+              v-for="item in responseComments"
+              :key="item.commentid"
+              :commentId="item.commentid"
+              :level="item.loglevel"
+              :content="item.logdata"
+              :comment="item.comment"
+              :vote="item.vote"
+              :voted="myVoteLock[item.commentid]"
+              :onVoteUp="handleVote"
+              :onVoteDown="handleCancelVote"
+              />
+          </v-flex>
+          <!-- <v-flex v-else>
+            No comments found
+          </v-flex> -->
+        </v-layout>
       </v-card>
     </v-dialog>
 
@@ -122,11 +91,13 @@
 
 <script>
 import Scroller from "./components/scroller";
+import AddCommentCard from "./components/comment_add";
+import DisplayCommentCard from "./components/comment_display";
 import axios from "axios"
 export default {
   name: "App",
   components: {
-    Scroller
+    Scroller, AddCommentCard, DisplayCommentCard
   },
   data() {
     this.rawList = [];
@@ -135,19 +106,28 @@ export default {
       list: [],
       filter: "",
       initialized: false,
+      // context menu control
       contextMenuStyle: "",
-      contextMenuActive: "false",
-      currentLevel: "Default",
-      descriptionLevel: "",
-      descriptionContent: "",
-      descriptionOthers: "",
-      addingComments: false,
-      showingComments:false,
-      newComment: '',
-      responseComments: [],
+      contextMenuActive: false,
+      // current selected content
+      selectedContent: {
+        content: '',
+        others: '',
+        level: 'none'
+      },
+      // snackbar control
       snackbar: false,
       snackbarText: '',
-      snackbarStatus: 'success'
+      snackbarStatus: 'success',
+
+      currentLevel: "Default",
+
+      // show comments control
+      showingComments:false,
+      responseComments: [],
+
+      // my vote control
+      myVoteLock: {}
     };
   },
   methods: {
@@ -186,43 +166,98 @@ export default {
       }
       let { clientX, clientY } = e;
 
-      this.descriptionLevel = level;
-      this.descriptionContent = text;
-      this.descriptionOthers = others;
-      this.contextMenuActive = true;
+      this.selectedContent = {
+        level: level,
+        content: text,
+        others: others
+      }
+      
       if (clientY>window.innerHeight/2) {
-        this.contextMenuStyle = `left: ${clientX}px; bottom: ${window.innerHeight-clientY}px;`;
+        this.openContextMenu(`left: ${clientX}px; bottom: ${window.innerHeight-clientY}px;`)
       } else {
-        this.contextMenuStyle = `left: ${clientX}px; top: ${clientY}px;`;
+        this.openContextMenu(`left: ${clientX}px; top: ${clientY}px;`)
       }
     },
-    handleAddComment(e) {
-      e.preventDefault();
-      this.contextMenuActive = false;
-      this.addingComments = true
+    handleAddComment({logdata, loglevel, logcomment}) {
+      if (!logcomment) {
+        return
+      }
+      axios.post('http://115.231.168.25:6969/v1/doc/create', {
+        logdata, loglevel, logcomment
+      })
+        .then(res => res.data)
+        .then(data => {
+          if (data.success) {
+            this.openSnackbar('success', 'Add comment successfully!')
+          } else {
+            this.openSnackbar('error', 'Failed to add Comment!')
+          }
+        })
+        .then(this.closeContextMenu())
+        .catch(this.closeContextMenu())
+        .catch(this.globalErrorHandler)
     },
-    handleGetComments(e) {
-      e.preventDefault();
-      this.contextMenuActive = false;
+    handleGetComments({logdata, loglevel}) {
+      this.closeContextMenu()
       axios.get('http://115.231.168.25:6969/v1/doc/search', {
         params: {
-          "logdata": this.descriptionContent, 
-          "loglevel": this.descriptionLevel, 
+          logdata,
+          loglevel
         }
       }).then(res => res.data)
       .then(data => {
         if (data.success) {
-          this.showingComments = true
           this.responseComments = data.hits
-          this.snackbar = true
-          this.snackbarText = 'Success'
-          this.snackbarStatus = 'success'
+          if (this.responseComments.length === 0) {
+            this.openSnackbar('warning', 'No related comments found')
+          } else {
+            this.showingComments = true
+            this.openSnackbar('success', 'Get comments successfully!')
+          }
         } else {
-          this.snackbar = true
-          this.snackbarText = data.err
-          this.snackbarStatus = 'error'
+          this.openSnackbar('error', 'Failed to get comments')
         }
-      }).catch(console.error)
+      }).catch(this.globalErrorHandler)
+    },
+
+    handleVote(commentId) {
+      if (this.myVoteLock[commentId]) {
+        return
+      } else {
+        let vm = this
+        this.myVoteLock[commentId] = true
+        this.trySaveVoteLock();
+        axios.post('http://115.231.168.25:6969/v1/doc/vote', {
+          commentid: commentId,
+          inc: true
+        }).then(res => {
+          vm.openSnackbar('success', 'Vote up!')
+          let index = vm.responseComments.findIndex(item => item.commentid === commentId)
+          vm.responseComments[index].vote = res.data.vote
+        }).catch(() => {
+          vm.openSnackbar('error', 'Failed')
+        })
+      }
+    },
+    
+    handleCancelVote(commentId) {
+      if (!this.myVoteLock[commentId]) {
+        return
+      } else {
+        let vm = this
+        this.myVoteLock[commentId] = false
+        this.trySaveVoteLock()
+        axios.post('http://115.231.168.25:6969/v1/doc/vote', {
+          commentid: commentId,
+          inc: false
+        }).then(res => {
+          vm.openSnackbar('success', 'Vote down!')
+          let index = vm.responseComments.findIndex(item => item.commentid === commentId)
+          vm.responseComments[index].vote = res.data.vote
+        }).catch(() => {
+          vm.openSnackbar('error', 'Failed')
+        })
+      }
     },
     handleFilter() {
       this.list = this.rawList.filter(item => {
@@ -234,29 +269,49 @@ export default {
         return search && filter;
       });
     },
-    handleSumbitForAdd() {
-      if (!this.newComment) {
-        return
+    globalErrorHandler(err) {
+      if (err instanceof Error) {
+        this.openSnackbar('error', err.toString())
+      } else {
+        this.openSnackbar('error', JSON.stringify(err))
       }
-      axios.post('http://115.231.168.25:6969/v1/doc/create', {
-        "logdata": this.descriptionContent, 
-        "loglevel": this.descriptionLevel, 
-        "logcomment": this.newComment
-      }).then(res => res.data)
-      .then(data => {
-        if (data.success) {
-          this.addingComments = false
-          this.snackbar = true
-          this.snackbarText = 'Success'
-          this.snackbarStatus = 'success'
-        } else {
-          this.snackbar = true
-          this.snackbarText = data.err
-          this.snackbarStatus = 'error'
-        }
-      })
-      .catch(console.error)
-    }
+    },
+    // context menu control
+    closeContextMenu() {
+      this.contextMenuActive = false
+    },
+    openContextMenu(positionStyle) {
+      this.contextMenuActive = true
+      this.contextMenuStyle = positionStyle
+    },
+    // snackbar control
+    openSnackbar(type, text) {
+      this.snackbarText = text
+      this.snackbarStatus = type
+      this.snackbar = true
+    },
+
+    tryGetVoteLock() {
+      try {
+        this.myVoteLock= JSON.parse(window.localStorage.getItem('myVoteLock')) || {};
+      } catch(err) {
+        this.myVoteLock = {};
+      }
+    },
+
+    trySaveVoteLock() {
+      this.$nextTick(() => {
+        window.localStorage.setItem('myVoteLock', JSON.stringify(this.myVoteLock))
+      });
+    },
+    // listenToPaste() {
+    //   let scroller = document.querySelector("#scroller");
+    //   scroller.addEventListener("paste", this.handlePaste);
+    // },
+    // stopListenToPaste() {
+    //   let scroller = document.querySelector("#scroller");
+    //   scroller.removeAllListeners('paste')
+    // }
   },
   mounted() {
     this.$nextTick(() => {
@@ -265,11 +320,14 @@ export default {
       scroller.addEventListener("contextmenu", e => {
         e.preventDefault();
       });
-      document.addEventListener(
+      scroller.addEventListener(
         "click",
-        () => (this.contextMenuActive = false)
+        () => (this.closeContextMenu())
       );
     });
+  },
+  created() {
+    this.tryGetVoteLock();
   }
 };
 </script>
