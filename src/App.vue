@@ -189,7 +189,7 @@ export default {
       if (!logcomment) {
         return
       }
-      axios.post('http://webdemo.agora.io/hyste_service/v1/doc/create', {
+      axios.post('https://webdemo.agora.io/hyste_service/v1/doc/create', {
         logdata, loglevel, logcomment
       })
         .then(res => res.data)
@@ -206,7 +206,7 @@ export default {
     },
     handleGetComments({logdata, loglevel}) {
       this.closeContextMenu()
-      axios.get('http://webdemo.agora.io/hyste_service/v1/doc/search', {
+      axios.get('https://webdemo.agora.io/hyste_service/v1/doc/search', {
         params: {
           logdata,
           loglevel
