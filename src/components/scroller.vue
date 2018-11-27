@@ -1,7 +1,6 @@
 <template>
   <div class="wrapper">
     <DynamicScroller
-      @update="handleUpdate"
       :emitUpdate="true"
       :items="list"
       :min-item-height="24"
@@ -34,12 +33,22 @@
         </DynamicScrollerItem>
       </template>
     </DynamicScroller>
+    <!-- <VirtualScrollList :size="24" :remain="100" :variable="true">
+      <div class="line" v-for="item of list" :key="item.id" :style="{ height: item.height + 'px' }" >
+        <div class="line-no">{{item.id}}</div>
+        <div class="line-level">{{item.level.toUpperCase()}}</div>
+        <div class="line-others">{{item.others}}</div>
+        <div class="line-content" @click.right="handleClick(item, $event)">{{ item.text }}</div>
+      </div>
+    </VirtualScrollList> -->
   </div>
 </template>
 
 <script>
 import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
 import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
+
+// import virtualScrollList from 'vue-virtual-scroll-list'
 export default {
   props: {
     list: Array,
@@ -47,12 +56,13 @@ export default {
   },
   components: {
     DynamicScroller,
-    DynamicScrollerItem
+    DynamicScrollerItem,
+    // VirtualScrollList: virtualScrollList
   },
   methods: {
-    handleUpdate() {
-      window.getSelection().removeAllRanges()
-    },
+    // handleUpdate() {
+    //   window.getSelection().removeAllRanges()
+    // },
     handleClick({level, text, others}, e) {
       this.onSelect&&this.onSelect({level, text, others}, e)
     }

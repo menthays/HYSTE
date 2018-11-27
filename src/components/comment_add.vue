@@ -1,29 +1,25 @@
 <template>
-  <v-card>
-    <v-toolbar>
-      {{"LEVEL: "+level.toUpperCase()}}
-    </v-toolbar>
-    <v-card-title>
+  <v-card flat class="container">
+    <v-card-text>
       <v-layout>
         <v-flex md12>
-          <v-textarea
+          <div
+            class="border-content"
+            :class="`level-${level}`"
+          >{{content}}</div>
+          <v-text-field
             box
-            readonly
-            label="Content"
-            :value="content"
-          ></v-textarea>
-          <v-textarea
-            @paste.stop=""
-            box
+            multi-line
             label="Comment"
             v-model="comment"
-          ></v-textarea>
+          ></v-text-field>
         </v-flex>
       </v-layout>
-    </v-card-title>
+    </v-card-text>
     <v-card-actions>
+      <v-spacer></v-spacer>
       <v-btn @click="handleAddComment" color="primary">Add comment</v-btn>
-      <v-btn @click="handleGetComments" flat >Get comments</v-btn>
+      <!-- <v-btn @click="handleGetComments" flat >Get comments</v-btn> -->
     </v-card-actions>
   </v-card>
 </template>
@@ -49,13 +45,17 @@ export default {
         "logcomment": this.comment
       });
     },
-    handleGetComments() {
-      this.onGetComments && this.onGetComments({
-        "logdata": this.content, 
-        "loglevel": this.level, 
-      })
-    }
+    // handleGetComments() {
+    //   this.onGetComments && this.onGetComments({
+    //     "logdata": this.content, 
+    //     "loglevel": this.level, 
+    //   })
+    // }
   }
 };
 </script>
+
+<style scoped>
+@import url('./common.css');
+</style>
 

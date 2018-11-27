@@ -1,26 +1,18 @@
 <template>
-  <v-card :id="commentId">
-    <v-toolbar :color="colorMapper(level)">
-      {{"LEVEL: "+level.toUpperCase()}}
-    </v-toolbar>
-    <v-card-title>
-      <v-layout>
+  <v-card flat class="container" :id="commentId">
+    <v-card-text>
+      <v-layout wrap>
         <v-flex md12>
-          <v-textarea
-            outline
-            readonly
-            label="Content"
-            :value="content"
-          ></v-textarea>
-          <v-textarea
-            outline
-            readonly
-            label="Comment"
-            :value="comment"
-          ></v-textarea>
+          <div
+            class="border-content"
+            :class="`level-${level}`"
+          >{{content}}</div>
+          <div
+            class="content"
+          >{{comment}}</div>
         </v-flex>
       </v-layout>
-    </v-card-title>
+    </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn @click="handleVote" flat icon :color="voted ? 'blue' : 'grey'">
@@ -61,3 +53,6 @@ export default {
 };
 </script>
 
+<style scoped>
+@import url('./common.css');
+</style>

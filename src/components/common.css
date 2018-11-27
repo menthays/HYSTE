@@ -1,0 +1,41 @@
+.container {
+  padding: 12px;
+  background: rgba(222,222,222)
+}
+
+.container .v-card__actions {
+  padding-top: 0!important;
+}
+
+.container .v-card__text {
+  padding-bottom: 0!important;
+}
+
+.content {
+  padding: 6px;
+  background: #EEE;
+  margin-bottom: 12px;
+}
+
+.border-content {
+  border-left: solid white 10px;
+  padding: 6px;
+  background: #EEE;
+  margin-bottom: 12px;
+}
+
+.level-none {
+  border-color: #EEEEEE;
+}
+
+.level-warn {
+  border-color: #FFE0B2;
+}
+
+.level-info {
+  border-color: #BBDEFB;
+}
+
+.level-error {
+  border-color: #FF7043;
+}
