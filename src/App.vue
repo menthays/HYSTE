@@ -148,7 +148,7 @@ export default {
       });
     },
     nativeParser(string, index) {
-      const reg = /(INFO|WARN|ERROR)\s*(\([\d\s:|]+\))\s*(\d+;?)\s*(.*)/;
+      const reg =  /\s*(INFO|WARN|ERROR)\s*([\d\s:\(\)|;]+)\s*(.*)/;
       let result = reg.exec(string);
       if (!result) {
         return {
