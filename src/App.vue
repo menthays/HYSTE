@@ -266,7 +266,7 @@ export default {
         this.myVoteLock[commentId] = true;
         this.trySaveVoteLock();
         axios
-          .post("http://115.231.168.25:6969/v1/doc/vote", {
+          .post("https://webdemo.agora.io/hyste_service/v1/doc/vote", {
             commentid: commentId,
             inc: true
           })
@@ -291,7 +291,7 @@ export default {
         this.myVoteLock[commentId] = false;
         this.trySaveVoteLock();
         axios
-          .post("http://115.231.168.25:6969/v1/doc/vote", {
+          .post("https://webdemo.agora.io/hyste_service/v1/doc/vote", {
             commentid: commentId,
             inc: false
           })
