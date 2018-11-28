@@ -211,29 +211,6 @@ export default {
     handleGetComments() {
       let logdata = this.selectedContent.content;
       let loglevel = this.selectedContent.level
-      // this.responseComments = [
-      //   {
-      //     commentid: "1234",
-      //     loglevel: "info",
-      //     logdata: "item.logdata",
-      //     comment: "item.comment",
-      //     vote: 10
-      //   },
-      //           {
-      //     commentid: "1234",
-      //     loglevel: "info",
-      //     logdata: "item.logdata",
-      //     comment: "item.comment",
-      //     vote: 10
-      //   },        {
-      //     commentid: "1234",
-      //     loglevel: "info",
-      //     logdata: "item.logdata",
-      //     comment: "item.comment",
-      //     vote: 10
-      //   }
-      // ]
-      // this.showingComments = true
       axios
         .get("https://webdemo.agora.io/hyste_service/v1/doc/search", {
           params: {
@@ -249,7 +226,7 @@ export default {
               this.openSnackbar("warning", "No related comments found");
             } else {
               this.showingComments = true;
-              this.openSnackbar("success", "Get comments successfully!");
+              // this.openSnackbar("success", "Get comments successfully!");
             }
           } else {
             this.openSnackbar("error", "Failed to get comments");
@@ -271,7 +248,7 @@ export default {
             inc: true
           })
           .then(res => {
-            vm.openSnackbar("success", "Vote up!");
+            // vm.openSnackbar("success", "Vote up!");
             let index = vm.responseComments.findIndex(
               item => item.commentid === commentId
             );
@@ -296,7 +273,7 @@ export default {
             inc: false
           })
           .then(res => {
-            vm.openSnackbar("success", "Vote down!");
+            // vm.openSnackbar("success", "Vote down!");
             let index = vm.responseComments.findIndex(
               item => item.commentid === commentId
             );
