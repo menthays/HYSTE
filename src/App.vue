@@ -225,14 +225,21 @@ export default {
             if (this.responseComments.length === 0) {
               this.openSnackbar("warning", "No related comments found");
             } else {
-              this.showingComments = true;
               // this.openSnackbar("success", "Get comments successfully!");
             }
           } else {
             this.openSnackbar("error", "Failed to get comments");
           }
+            setTimeout(() => {
+              this.showingComments = true;
+            }, 1200);
         })
-        .catch(this.globalErrorHandler);
+        .catch(this.globalErrorHandler)
+        .catch(() => {
+          setTimeout(_ => {
+            this.showingComments = true;
+          }, 1200);
+        });
     },
 
     handleVote(commentId) {
