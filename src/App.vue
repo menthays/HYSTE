@@ -161,8 +161,8 @@ export default {
       return {
         id: index,
         level: result[1].toLowerCase(),
-        others: result[2] + " " + result[3],
-        text: result[4]
+        others: result[2],
+        text: result[3]
       };
     },
     handleSelect({ level, text, others }, e) {
