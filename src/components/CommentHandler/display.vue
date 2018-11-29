@@ -1,5 +1,5 @@
 <template>
-  <v-card flat class="container" :id="commentId">
+  <v-card :id="commentId">
     <v-card-text>
       <v-layout wrap>
         <v-flex md12>
@@ -43,16 +43,6 @@ export default {
         this.onVoteUp && this.onVoteUp(this.commentId)
       }
     },
-    colorMapper(level) {
-      if(level === 'warn') {
-        return 'warning'
-      }
-      return level
-    }
   }
 };
 </script>
-
-<style scoped>
-@import url('./common.css');
-</style>

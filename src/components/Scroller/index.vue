@@ -22,14 +22,14 @@
           :item="item"
           :active="active"
           :size-dependencies="[
-            item.text,
+            item.content,
           ]"
           :data-index="index"
         >
           <div class="line-no">{{item.id}}</div>
           <div class="line-level">{{item.level.toUpperCase()}}</div>
           <div class="line-others">{{item.others}}</div>
-          <div class="line-content" @click.right="handleClick(item, $event)">{{ item.text }}</div>
+          <div class="line-content" @click.right="handleClick(item, $event)">{{ item.content }}</div>
         </DynamicScrollerItem>
       </template>
     </DynamicScroller>
@@ -63,8 +63,8 @@ export default {
     // handleUpdate() {
     //   window.getSelection().removeAllRanges()
     // },
-    handleClick({level, text, others}, e) {
-      this.onSelect&&this.onSelect({level, text, others}, e)
+    handleClick({level, content, others}, e) {
+      this.onSelect&&this.onSelect({level, content, others}, e)
     }
   }
 };

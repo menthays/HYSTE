@@ -1,26 +1,18 @@
-.container {
+.comment-container {
   padding: 12px;
   background: rgba(222,222,222)
 }
 
-.container .v-card__actions {
-  padding-top: 0!important;
-}
-
-.container .v-card__text {
-  padding-bottom: 0!important;
-}
-
 .content {
   padding: 6px;
-  background: #EEE;
+  background: rgba(102, 102, 102, .6);
   margin-bottom: 12px;
+  min-height: 60px;
 }
 
 .border-content {
   border-left: solid white 10px;
   padding: 6px;
-  background: #EEE;
   margin-bottom: 12px;
 }
 
