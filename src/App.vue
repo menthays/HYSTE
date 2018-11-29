@@ -34,47 +34,51 @@
     </v-toolbar>
 
     <!-- contextmenu -->
-    <v-card v-if="contextMenuActive" class="context-menu" :style="contextMenuStyle">
-      <v-layout wrap>
-        <v-flex md12 v-if="showingComments">
-          <v-card>
-            <v-layout>
-              <v-flex md12>
-                <DisplayCommentCard
-                  v-for="item in responseComments"
-                  :key="item.commentid"
-                  :commentId="item.commentid"
-                  :level="item.loglevel"
-                  :content="item.logdata"
-                  :comment="item.comment"
-                  :vote="item.vote"
-                  :voted="myVoteLock[item.commentid]"
-                  :onVoteUp="handleVote"
-                  :onVoteDown="handleCancelVote"
-                />
-              </v-flex>
-            </v-layout>
-          </v-card>
-        </v-flex>
-        <v-flex class="loading-container" md12 v-else>
+    <v-dialog v-model="contextMenuActive">
+      <v-card v-if="contextMenuActive" 
+      >
+        <v-layout wrap>
+          <v-flex md12 v-if="showingComments">
+            <v-card>
+              <v-layout>
+                <v-flex md12>
+                  <DisplayCommentCard
+                    v-for="item in responseComments"
+                    :key="item.commentid"
+                    :commentId="item.commentid"
+                    :level="item.loglevel"
+                    :content="item.logdata"
+                    :comment="item.comment"
+                    :vote="item.vote"
+                    :voted="myVoteLock[item.commentid]"
+                    :onVoteUp="handleVote"
+                    :onVoteDown="handleCancelVote"
+                  />
+                </v-flex>
+              </v-layout>
+            </v-card>
+          </v-flex>
+          <v-flex class="loading-container" md12 v-else>
 
-          <v-progress-circular
-            style="margin-bottom: 12px;"
-            indeterminate
-            color="primary"
-          ></v-progress-circular>
-          Getting Comments...
-        </v-flex>
-        <hr />
-        <v-flex md12>
-          <AddCommentCard
-            :level="selectedContent.level"
-            :content="selectedContent.content"
-            :onAddComment="handleAddComment"
-          />
-        </v-flex>
-      </v-layout>
-    </v-card>
+            <v-progress-circular
+              style="margin-bottom: 12px;"
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+            Getting Comments...
+          </v-flex>
+          <hr />
+          <v-flex md12>
+            <AddCommentCard
+              :level="selectedContent.level"
+              :content="selectedContent.content"
+              :onAddComment="handleAddComment"
+            />
+          </v-flex>
+        </v-layout>
+      </v-card>
+    </v-dialog>
+
 
     <!-- snackbar -->
     <v-snackbar
@@ -177,13 +181,7 @@ export default {
         others: others
       };
 
-      if (clientY > window.innerHeight / 2) {
-        this.openContextMenu(
-          `left: ${clientX}px; bottom: ${window.innerHeight - clientY}px;`
-        );
-      } else {
-        this.openContextMenu(`left: ${clientX}px; top: ${clientY}px;`);
-      }
+      this.openContextMenu()
     },
     handleAddComment({ logdata, loglevel, logcomment }) {
       if (!logcomment) {
@@ -209,6 +207,7 @@ export default {
     },
 
     handleGetComments() {
+      this.showingComments = false;
       let logdata = this.selectedContent.content;
       let loglevel = this.selectedContent.level
       axios
@@ -234,8 +233,8 @@ export default {
               this.showingComments = true;
             }, 1200);
         })
-        .catch(this.globalErrorHandler)
-        .catch(() => {
+        .catch(err => {
+          this.globalErrorHandler(err)
           setTimeout(_ => {
             this.showingComments = true;
           }, 1200);
@@ -312,9 +311,8 @@ export default {
     closeContextMenu() {
       this.contextMenuActive = false;
     },
-    openContextMenu(positionStyle) {
+    openContextMenu() {
       this.contextMenuActive = true;
-      this.contextMenuStyle = positionStyle;
       this.handleGetComments()
     },
     // snackbar control
@@ -383,14 +381,6 @@ export default {
 .auto-width {
   flex: 0 0 210px;
   margin-right: 6px;
-}
-.context-menu {
-  position: fixed;
-  left: -999px;
-  z-index: 999999;
-  max-width: 400px;
-  max-height: 50%;
-  overflow-y: auto;
 }
 .description {
   font-size: 16px;
