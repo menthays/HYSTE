@@ -4,16 +4,17 @@
 }
 
 .content {
-  padding: 6px;
-  background: rgba(102, 102, 102, .6);
-  margin-bottom: 12px;
-  min-height: 60px;
+  padding: 12px;
+  background: #EEEEEE;
+  min-height: 90px;
+  position: relative;
 }
 
 .border-content {
-  border-left: solid white 10px;
-  padding: 6px;
-  margin-bottom: 12px;
+  /* border-left: solid white 10px; */
+  padding: 12px;
+  display: flex;
+  align-items: center;
 }
 
 .level-none {

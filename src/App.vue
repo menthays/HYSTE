@@ -34,13 +34,14 @@
     </v-toolbar>
 
     <!-- contextmenu -->
-    <v-dialog v-model="contextMenuActive">
+    <v-dialog v-model="contextMenuActive" width="768">
       <CommentHandler
         v-if="contextMenuActive"
         :level="selectedContent.level"
         :content="selectedContent.content"
       />
     </v-dialog>
+
 
 
     <!-- snackbar -->
