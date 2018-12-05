@@ -23,7 +23,7 @@
         class="placeholder"
         @drop="this.handleDrop"
         @dragover="this.handleDragOver"
-      >Paste your log here (Cmd/Ctrl+V)</div>
+      >Paste or drag your log here</div>
       <Scroller :onSelect="handleSelect" v-else :list="list"></Scroller>
     </v-content>
 
