@@ -18,7 +18,12 @@
     </v-toolbar>
 
     <v-content id="scroller" class="log-container">
-      <div v-if="!initialized" class="placeholder">Paste your log here (Cmd/Ctrl+V)</div>
+      <div
+        v-if="!initialized"
+        class="placeholder"
+        @drop="this.handleDrop"
+        @dragover="this.handleDragOver"
+      >Paste your log here (Cmd/Ctrl+V)</div>
       <Scroller :onSelect="handleSelect" v-else :list="list"></Scroller>
     </v-content>
 
@@ -26,7 +31,7 @@
     <v-toolbar v-if="initialized" class="searcher">
       <v-text-field
         v-model="filter"
-        @keyup.enter="handleFilter"
+        @input="handleFilter"
         class="auto-width"
         label="Search"
         append-icon="search"
@@ -42,8 +47,6 @@
       />
     </v-dialog>
 
-
-
     <!-- snackbar -->
     <v-snackbar
       v-model="snackbar"
@@ -57,14 +60,14 @@
 <script>
 import Scroller from "./components/Scroller/index.vue";
 import CommentHandler from "./components/CommentHandler/index.vue";
-import Parser from './utils/Parser.js'
+import Parser from "./utils/Parser.js";
 
 export default {
   name: "App",
 
   components: {
     Scroller,
-    CommentHandler,
+    CommentHandler
   },
 
   data() {
@@ -93,12 +96,11 @@ export default {
       snackbarText: "",
       snackbarStatus: "success",
 
-      currentLevel: "Default",
-
+      currentLevel: "Default"
     };
   },
   methods: {
-    handlePaste(e) {
+    handleInputByPaste(e) {
       if (this.initialized) {
         this.rawList = [];
         this.list = [];
@@ -111,12 +113,36 @@ export default {
           .filter(line => line !== "");
         this.rawList = data.map((line, index) => {
           let rst = this._parser.parse(line);
-          rst.id = index
-          return rst
+          rst.id = index;
+          return rst;
         });
         this.list = this.rawList;
         this.initialized = true;
       });
+    },
+
+    handleInputByFile(file) {
+      if (this.initialized) {
+        this.rawList = [];
+        this.list = [];
+      }
+      let reader = new FileReader();
+      reader.onload = e => {
+        this.$nextTick(() => {
+          let data = e.target.result
+            .split("\n")
+            .filter(line => line !== "");
+          this.rawList = data.map((line, index) => {
+            let rst = this._parser.parse(line);
+            rst.id = index;
+            return rst;
+          });
+          this.list = this.rawList;
+          this.initialized = true;
+        });
+      };
+
+      reader.readAsText(file);
     },
 
     handleSelect({ level, content, others }) {
@@ -131,13 +157,14 @@ export default {
       };
 
       this.$nextTick(() => {
-        this.openContextMenu()
-      })
+        this.openContextMenu();
+      });
     },
 
     handleFilter() {
+      let reg = new RegExp(this.filter);
       this.list = this.rawList.filter(item => {
-        let search = new RegExp(this.filter, "i").test(item.text);
+        let search = reg.test(item.content);
         let filter =
           this.currentLevel === "Default"
             ? true
@@ -162,11 +189,48 @@ export default {
     },
 
     listenToPaste() {
-      document.addEventListener("paste", this.handlePaste);
+      document.addEventListener("paste", this.handleInputByPaste);
     },
 
     stopListenToPaste() {
       document.removeAllListeners("paste");
+    },
+
+    handleDrop(ev) {
+      ev.preventDefault();
+
+      if (ev.dataTransfer.items) {
+        if (ev.dataTransfer.items.length > 1) {
+          this.openSnackbar('error', 'No more than one file');
+        }
+        for (let i = 0; i < ev.dataTransfer.items.length; i++) {
+          if (ev.dataTransfer.items[i].kind === "file") {
+            var file = ev.dataTransfer.items[i].getAsFile();
+            this.handleInputByFile(file)
+          }
+        }
+      } else {
+        if (ev.dataTransfer.items.length > 1) {
+          this.openSnackbar('error', 'No more than one file');
+        }
+        for (let i = 0; i < ev.dataTransfer.files.length; i++) {
+          this.handleInputByFile(ev.dataTransfer.files[i])
+        }
+      }
+
+      this.removeDragData(ev);
+    },
+
+    handleDragOver(ev) {
+      ev.preventDefault();
+    },
+
+    removeDragData(ev) {
+      if (ev.dataTransfer.items) {
+        ev.dataTransfer.items.clear();
+      } else {
+        ev.dataTransfer.clearData();
+      }
     }
   },
   mounted() {
@@ -180,7 +244,7 @@ export default {
       });
       scroller.addEventListener("click", () => this.closeContextMenu());
     });
-  },
+  }
 };
 </script>
 
