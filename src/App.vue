@@ -162,7 +162,7 @@ export default {
     handleFilter() {
       let reg = new RegExp(this.filter);
       this.list = this.rawList.filter(item => {
-        let search = reg.test(item.content);
+        let search = reg.test(`${item.level} ${item.others} ${item.content}`);
         let filter =
           this.currentLevel === "Default"
             ? true
