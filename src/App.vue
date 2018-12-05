@@ -21,8 +21,6 @@
       <div
         v-if="!initialized"
         class="placeholder"
-        @drop="this.handleDrop"
-        @dragover="this.handleDragOver"
       >Paste or drag your log here</div>
       <Scroller :onSelect="handleSelect" v-else :list="list"></Scroller>
     </v-content>
@@ -190,10 +188,14 @@ export default {
 
     listenToPaste() {
       document.addEventListener("paste", this.handleInputByPaste);
+      document.addEventListener('drop', this.handleDrop);
+      document.addEventListener('dragover', this.handleDragOver);
     },
 
     stopListenToPaste() {
       document.removeAllListeners("paste");
+      document.removeAllListeners("drop");
+      document.removeAllListeners("dragover");
     },
 
     handleDrop(ev) {
