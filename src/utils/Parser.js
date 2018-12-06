@@ -18,7 +18,7 @@ export default class Parser {
   levelReg: RegExp
   levelAlias: Array<string>
 
-  static DEFAULT_COMMON_REG = /\s*(INFO|WARN|ERROR)\s*([\d\s:\(\)|;]+)\s*(.*)/
+  static DEFAULT_COMMON_REG = /\s*(INFO|WARN|ERROR|DEBUG)\s*([\d\s:\(\)|;]+)\s*(.*)/
   
   static DEFAULT_PROPS = ['level', 'others', 'content']
 
