@@ -24,7 +24,7 @@ export default class Parser {
 
   static DEFAULT_LEVEL = ['none', 'debug', 'info', 'warn', 'error']
 
-  static DEFAULT_LEVEL_REG = /^(INFO|WARN|ERROR)/
+  static DEFAULT_LEVEL_REG = /^(INFO|WARN|ERROR|DEBUG)/
 
   constructor(commmonReg: string, props: Array<string>, levelReg: string, levelAlias: ?Array<string>) {
     if (commmonReg) {
