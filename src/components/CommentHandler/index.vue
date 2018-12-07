@@ -58,6 +58,14 @@
           </v-card-actions>
         </v-card>
       </v-flex>
+
+      <!-- snackbar -->
+      <v-snackbar
+        v-model="snackbar"
+        :top="true"
+        :timeout="3000"
+        :color="snackbarStatus"
+      >{{snackbarText}}</v-snackbar>
     </v-layout>
   </v-card>
 </template>
@@ -79,10 +87,21 @@ export default {
       myVoteLock: {},
 
       showingComments: false,
-      responseComments: []
+      responseComments: [],
+
+      // snackbar control
+      snackbar: false,
+      snackbarText: "",
+      snackbarStatus: "success",
     };
   },
   methods: {
+    // snackbar control
+    openSnackbar(type, text) {
+      this.snackbarText = text;
+      this.snackbarStatus = type;
+      this.snackbar = true;
+    },
     handleAddComment() {
       if (!this.comment) {
         return;
@@ -96,9 +115,9 @@ export default {
         .then(res => res.data)
         .then(data => {
           if (data.success) {
-            // this.openSnackbar("success", "Add comment successfully!");
+            this.openSnackbar("success", "Add comment successfully!");
           } else {
-            // this.openSnackbar("error", "Failed to add Comment!");
+            this.openSnackbar("error", "Failed to add Comment!");
           }
         })
         // .then(this.closeContextMenu())
